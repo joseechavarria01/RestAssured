@@ -1,32 +1,42 @@
 package org.example.service;
 
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.example.dto.RequestDTO;
-import org.example.dto.ResponseDTO;
+import org.example.utils.JsonConvert;
+
+import java.util.Map;
 
 public class RestAssuredClient {
 
-    private String baseUri;
-
     public RestAssuredClient() {
     }
-
-    public <T extends ResponseDTO> T get(String endpoint, Class<T> responseClass) {
-        Response response = RestAssured.get(baseUri + endpoint);
-        return response.as(responseClass);
+/*
+    public <T> T get(String endpoint, Class<T> responseClass) {
+        Response response = RestAssured.get(endpoint);
+        return JsonConvert.deserialize(response.getBody().asString(),responseClass);
+    }
+*/
+    public Response get(String endpoint) {
+        Response response = RestAssured.given().get(endpoint);
+        return response;
     }
 
-    public <T extends ResponseDTO, U extends RequestDTO> T post(String endpoint, U requestBody, Class<T> responseClass) {
+    public <T, U> T post(String endpoint, U requestBody, Class<T> responseClass) {
         Response response = RestAssured.given()
                 .body(requestBody)
                 .post(endpoint);
+        return response.as(responseClass);
+    }
 
-        if (response.statusCode() == 200) {
-            return response.as(responseClass);
-        } else {
-            throw new RuntimeException("Error en la respuesta: " + response.statusCode());
-        }
+    public <T> T post(String endpoint, Map<String, String> formData, Class<T> responseClass) {
+
+        var requestSpec = RestAssured.given(); // Construir la solicitud
+        formData.forEach(requestSpec::multiPart); // Agregar los datos del HashMap
+        Response response = requestSpec.when().post(endpoint); // Enviar la solicitud
+       // response.then().log().all();
+
+      return JsonConvert.deserialize(response.getBody().asString(),responseClass);
     }
 
     // Métodos para otros tipos de solicitudes (PUT, DELETE, etc.) pueden agregarse de manera similar

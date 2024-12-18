@@ -2,8 +2,8 @@
 <suite name="MyTestSuite">
     <test name="MyTests">
         <classes>
-            <class name="tests.ApiTest"/>
-            <class name="tests.ApiTestDos"/>
+            <class name="tests.ProductsTest"/>
+            <class name="tests.LoginTest"/>
         </classes>
     </test>
 </suite>

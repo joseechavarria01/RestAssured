@@ -1,7 +1,11 @@
 package org.example.config;
 
 import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
 import org.example.utils.enums.LogsRestAssured;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class RequestConfig {
 
@@ -12,17 +16,33 @@ public class RequestConfig {
         RestAssured.requestSpecification = RestAssured.given().contentType(contentType);
     }
 
+    public static void header(String key, String value) {
+        RestAssured.requestSpecification = RestAssured.given().header(key, value);
+    }
+
+
     /**
      * Configura si se muestran los logs
      * @param enable
      */
     public static void enableLogs(LogsRestAssured enable) {
-
         switch (enable) {
-            case ALL ->  RestAssured.requestSpecification = RestAssured.given().log().all();
-            case BODY -> RestAssured.requestSpecification = RestAssured.given().log().body();
-            case HEADERS -> RestAssured.requestSpecification = RestAssured.given().log().headers();
-            case IFVALIDATIONFAILS -> RestAssured.requestSpecification = RestAssured.given().log().ifValidationFails();
+            case RESPONSE_ALL ->  RestAssured.requestSpecification.response().log().all();
+            case RESPONSE_BODY ->  RestAssured.requestSpecification.response().log().body();
+            case RESPONSE_HEADERS ->  RestAssured.requestSpecification.response().log().headers();
+            case RESPONSE_IFVALIDATIONFAILS -> RestAssured.requestSpecification.response().log().ifValidationFails();
+            case REQUEST_ALL ->  RestAssured.requestSpecification.request().log().all();
+            case REQUEST_BODY ->  RestAssured.requestSpecification.request().log().body();
+            case REQUEST_HEADERS ->  RestAssured.requestSpecification.request().log().headers();
+            case REQUEST_IFVALIDATIONFAILS -> RestAssured.requestSpecification.request().log().ifValidationFails();
+            case DISABLE_ALL -> {
+                RestAssured.config = RestAssured.config().logConfig(new LogConfig(new PrintStream(new OutputStream() {
+                    @Override
+                    public void write(int b) {
+                        // Do nothing
+                    }
+                }), true));
+            }
         }
     }
 

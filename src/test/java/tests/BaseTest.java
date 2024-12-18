@@ -1,45 +1,46 @@
 package tests;
 
-import com.aventstack.extentreports.ExtentReports;
-import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+import io.restassured.RestAssured;
+import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.example.config.RequestConfig;
+import org.example.utils.TestConstant;
+import org.example.utils.TestReports;
 import org.example.utils.enums.LogsRestAssured;
 import org.testng.annotations.*;
+
 
 import java.lang.reflect.Method;
 
 public class BaseTest {
 
-    protected static ExtentReports extent;
-    protected ExtentTest test;
+    protected TestReports reports = TestReports.getInstance();
 
     @BeforeSuite
     public void setUp() {
         // Inicialización del reporte HTML
-        ExtentSparkReporter htmlReporter = new ExtentSparkReporter("extentReport.html");
-        extent = new ExtentReports();
-        extent.attachReporter(htmlReporter);
+        reports.configReport();
     }
 
     @BeforeMethod
     public void startTest(Method method) {
         // Crear un nuevo test para cada método
-        test = extent.createTest(method.getName());
-        RequestConfig.baseUri("https://reqres.in", "/api");
-        RequestConfig.enableLogs(LogsRestAssured.BODY);
+        reports.createTest(method.getName());
+        reports.infoStep("Config Request");
+        RequestConfig.baseUri(TestConstant.URL,"/api");
         RequestConfig.contentType("application/json");
+        RequestConfig.contentType("multipart/form-data");
+        RequestConfig.enableLogs(LogsRestAssured.DISABLE_ALL);
     }
 
     @AfterMethod
     public void endTest() {
-        extent.flush();
-    }
-
-    @AfterSuite
-    public void tearDown() {
-        // Guardar los resultados después de cada prueba
-        extent.flush();
+        reports.flush();
     }
 }
 

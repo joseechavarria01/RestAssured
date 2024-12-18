@@ -1,8 +1,8 @@
-package org.example.dto;
+package org.example.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserRequestDTO implements RequestDTO {
+public class UserRequest {
 
     @JsonProperty("email")
     private String email;
